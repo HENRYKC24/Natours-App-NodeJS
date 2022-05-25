@@ -42,7 +42,7 @@ app.post('/api/v1/tours', (req, res) => {
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
   fs.writeFile(
-    `${__dirname}/d-data/data/tours-simple.json`,
+    `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) {
@@ -52,6 +52,45 @@ app.post('/api/v1/tours', (req, res) => {
           status: 'success',
           data: {
             tour: newTour,
+          },
+        });
+      }
+    }
+  );
+});
+
+app.patch('/api/v1/tours/:id', (req, res) => {
+  const id = req.params.id * 1;
+  let ind = -1;
+  const item = tours.find((tour, index) => {
+    if (tour.id === id) {
+      ind = index;
+      return tour.id === id;
+    }
+  });
+
+  if (!item) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid ID',
+    });
+  }
+
+  const reqData = req.body;
+  tours.splice(ind, 1);
+  const updatedTour = { ...item, ...reqData };
+  tours.splice(ind, 0, updatedTour);
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      if (err) {
+        res.status(500).json(err);
+      } else {
+        res.status(201).json({
+          status: 'success',
+          data: {
+            tour: updatedTour,
           },
         });
       }
