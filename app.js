@@ -25,9 +25,7 @@ app.get('/api/v1/tours/:id', (req, res) => {
   if (!tour) {
     return res.status(404).json({
       status: 'failure',
-      data: {
-        message: 'No tour with the provided id!',
-      },
+      message: 'No tour with the provided id!',
     });
   }
 
