@@ -1,13 +1,25 @@
 const fs = require('fs');
 const express = require('express');
+const morgan = require('morgan');
 
+// SET UP APP
 const app = express();
-app.use(express.json());
 
+// USE MIDDLEWARE
+app.use(morgan('dev'));
+app.use(express.json());
+app.use((req, res, next) => {
+  console.log('Hello from the middleware!');
+  req.time = new Date().toISOString();
+  next();
+});
+
+// GET DATA
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
+// REQUEST HANDLERS
 const deleteTour = (req, res) => {
   const id = req.params.id * 1;
   let ind = -1;
@@ -17,14 +29,12 @@ const deleteTour = (req, res) => {
       return tour.id === id;
     }
   });
-
   if (!item) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
     });
   }
-
   const updatedTours = tours.filter((tour) => tour.id !== id);
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
@@ -45,6 +55,7 @@ const deleteTour = (req, res) => {
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
+    time: req.time,
     results: tours.length,
     data: {
       tours,
@@ -55,14 +66,12 @@ const getAllTours = (req, res) => {
 const getOneTour = (req, res) => {
   const id = req.params.id * 1;
   const tour = tours.find((tour) => tour.id === id);
-
   if (!tour) {
     return res.status(404).json({
       status: 'failure',
       message: 'No tour with the provided id!',
     });
   }
-
   res.status(200).json({
     status: 'success',
     data: {
@@ -102,14 +111,12 @@ const updateTour = (req, res) => {
       return tour.id === id;
     }
   });
-
   if (!item) {
     return res.status(404).json({
       status: 'fail',
       message: 'Invalid ID',
     });
   }
-
   const reqData = req.body;
   tours.splice(ind, 1);
   const updatedTour = { ...item, ...reqData };
@@ -132,14 +139,8 @@ const updateTour = (req, res) => {
   );
 };
 
-// app.get('/api/v1/tours', getAllTours);
-// app.post('/api/v1/tours', createTour);
-// app.get('/api/v1/tours/:id', getOneTour);
-// app.patch('/api/v1/tours/:id', updateTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
-
+// ROUTES
 const endpoint = '/api/v1/tours';
-
 app.route(endpoint).get(getAllTours).post(createTour);
 app
   .route(`${endpoint}/:id`)
@@ -147,6 +148,7 @@ app
   .patch(updateTour)
   .delete(deleteTour);
 
+// RUN SERVER
 const port = 4000;
 app.listen(port, () => {
   console.log(`App running on port ${port}`);
