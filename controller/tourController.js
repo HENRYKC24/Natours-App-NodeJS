@@ -20,7 +20,7 @@ exports.checkId = (req, res, next, id) => {
 exports.deleteTour = (req, res) => {
   const updatedTours = tours.filter((tour) => tour.id !== id);
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(updatedTours),
     (err) => {
       if (err) {
@@ -57,12 +57,22 @@ exports.getOneTour = (req, res) => {
   });
 };
 
+exports.validateTourProps = (req, res, next) => {
+  const { name, price } = req.body;
+  if (!name || !price)
+    return res.status(400).json({
+      status: 'fail',
+      message: 'Missing name and/or price',
+    });
+  next();
+};
+
 exports.createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) {
@@ -85,7 +95,7 @@ exports.updateTour = (req, res) => {
   const updatedTour = { ...item, ...reqData };
   tours.splice(ind, 0, updatedTour);
   fs.writeFile(
-    `${__dirname}/dev-data/data/tours-simple.json`,
+    `${__dirname}/../dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
     (err) => {
       if (err) {
