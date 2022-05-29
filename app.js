@@ -8,10 +8,13 @@ const userRouter = require('./routes/userRoute');
 const app = express();
 
 // USE MIDDLEWARE
-app.use(morgan('dev'));
+app.use(express.static(`${__dirname}/public`));
+console.log(process.env);
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 app.use(express.json());
 app.use((req, res, next) => {
-  console.log('Hello from the middleware!');
   req.time = new Date().toISOString();
   next();
 });
