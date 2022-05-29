@@ -9,7 +9,7 @@ const app = express();
 
 // USE MIDDLEWARE
 app.use(express.static(`${__dirname}/public`));
-
+console.log(process.env)
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
