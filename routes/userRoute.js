@@ -1,5 +1,6 @@
 const express = require('express');
 const userControllers = require('../controller/userController');
+
 const { getUsers, createUser, getUser, updateUser, deleteUser } =
   userControllers;
 // USERS ROUTES

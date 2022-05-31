@@ -1,5 +1,6 @@
 const express = require('express');
 const tourControllers = require('../controller/tourController');
+
 const {
   validateTourProps,
   getAllTours,
