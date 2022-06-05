@@ -17,7 +17,7 @@ mongoose
   })
   .then(() => console.log('MongoDB connection successful'));
 
-const tourSchema = mongoose.Schema({
+const tourSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'A tour must have a name'],
