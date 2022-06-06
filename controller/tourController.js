@@ -1,7 +1,5 @@
 const Tour = require('../models/tourModel');
 
-// GET DATA
-
 // REQUEST HANDLERS
 exports.deleteTour = (req, res) => {
   res.status(200).json({
@@ -9,36 +7,73 @@ exports.deleteTour = (req, res) => {
   });
 };
 
-exports.getAllTours = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-  });
-};
-
-exports.getOneTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-  });
-};
-
-exports.validateTourProps = (req, res, next) => {
-  const { name, price } = req.body;
-  if (!name || !price)
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name and/or price',
+exports.getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tours,
+      },
     });
-  next();
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-  });
+exports.getOneTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
-exports.updateTour = (req, res) => {
-  res.status(200).json({
-    status: 'success',
-  });
+exports.createTour = async (req, res) => {
+  try {
+    const tour = await Tour.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.updateTour = async (req, res) => {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'success',
+      message: err,
+    });
+  }
 };
