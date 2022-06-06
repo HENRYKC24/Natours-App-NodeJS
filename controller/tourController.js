@@ -21,20 +21,21 @@ exports.getOneTour = (req, res) => {
   });
 };
 
-exports.validateTourProps = (req, res, next) => {
-  const { name, price } = req.body;
-  if (!name || !price)
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Missing name and/or price',
+exports.createTour = async (req, res) => {
+  try {
+    const tour = await Tour.create(req.body);
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour,
+      },
     });
-  next();
-};
-
-exports.createTour = (req, res) => {
-  res.status(201).json({
-    status: 'success',
-  });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 exports.updateTour = (req, res) => {
