@@ -1,8 +1,23 @@
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const app = require('./app');
 
 dotenv.config({ path: './config.env' });
 
-const app = require('./app');
+const DB = process.env.MONGODB_REMOTE_SERVER.replace(
+  '<PASSWORD>',
+  process.env.MONGODB_PASSWORD
+);
+mongoose
+  // .connect(process.env.MONGODB_LOCAL_SERVER, {
+  .connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('MongoDB connection successful'));
+
 // RUN SERVER
 const port = process.env.PORT || 4000;
 app.listen(port, () => {
