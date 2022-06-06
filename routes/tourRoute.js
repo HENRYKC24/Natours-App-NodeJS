@@ -8,12 +8,12 @@ const {
   getOneTour,
   updateTour,
   deleteTour,
-  checkId,
+  // checkId,
 } = tourControllers;
 
 // TOURS ROUTES
 const route = express.Router();
-route.param('id', checkId);
+// route.param('id', checkId);
 route.route('/').get(getAllTours).post(validateTourProps, createTour);
 route.route('/:id').get(getOneTour).patch(updateTour).delete(deleteTour);
 
