@@ -2,6 +2,13 @@ const Tour = require('../models/tourModel');
 
 // REQUEST HANDLERS
 
+exports.top5Cheapest = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 exports.createTour = async (req, res) => {
   try {
     const tour = await Tour.create(req.body);
