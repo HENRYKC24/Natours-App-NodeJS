@@ -1,6 +1,14 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/APIFeatures');
 
 // REQUEST HANDLERS
+
+exports.top5Cheapest = async (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
 
 exports.createTour = async (req, res) => {
   try {
@@ -21,51 +29,13 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    // BUILD QUERY
-    const queryObj = { ...req.query };
-    const specialQueries = ['page', 'sort', 'limit', 'fields'];
-    specialQueries.forEach((each) => delete queryObj[each]);
+    const query = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
 
-    // COMPLEX FILTERING
-    let queryString = JSON.stringify(queryObj);
-    queryString = queryString.replace(
-      /\b(lt|gt|lte|gte)\b/g,
-      (match) => `$${match}`
-    );
-
-    let query = Tour.find(JSON.parse(queryString));
-
-    //  SORT QUERY
-    if (req.query.sort) {
-      query = query.sort(req.query.sort.split(',').join(' '));
-    } else {
-      query = query.sort('createdAt');
-    }
-
-    // FIELD LIMITING
-    const { fields } = req.query;
-
-    const fieldString = fields.split(',').join(' ');
-    if (fields) {
-      query = query.select(fieldString);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // PAGINATION
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-
-    if (req.query.page) {
-      const requestedPage = await Tour.countDocuments();
-      if (skip >= requestedPage) throw new Error('Page number not found');
-    }
-
-    query = query.skip(skip).limit(limit);
-
-    // EXECUTE QUERY
-    const tours = await query;
+    const tours = await query.mongoQueryObject;
 
     res.status(200).json({
       status: 'success',
