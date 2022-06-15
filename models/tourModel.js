@@ -51,7 +51,11 @@ const tourSchema = new mongoose.Schema(
       default: Date.now(),
     },
     slug: String,
-    startDates: [Date],
+    startTimeDates: [Date],
+    superSecret: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -59,13 +63,40 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// SET VIRTUAL PROPERTY
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
 
 // Define mongoose middleware
+// DOCUMENT MIDDLEWARE
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+// tourSchema.post('save', (doc, next) => {
+//   console.log('Docs', doc);
+//   next();
+// });
+
+// FIND MIDDLEWARE
+tourSchema.pre(/^find/, function (next) {
+  this.startTime = Date.now();
+  this.find({ superSecret: { $ne: true } });
+  next();
+});
+
+tourSchema.post(/^find/, function (doc, next) {
+  console.log(
+    `It took ${Date.now() - this.startTime} milliseconds to run this query.`
+  );
+  next();
+});
+
+// AGGREGATE MIDDLEWARE
+tourSchema.pre('aggregate', function (next) {
+  this.pipeline().unshift({ $match: { superSecret: { $ne: true } } });
   next();
 });
 
