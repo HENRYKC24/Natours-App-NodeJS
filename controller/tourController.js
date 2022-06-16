@@ -83,7 +83,7 @@ exports.updateTour = async (req, res) => {
     });
   } catch (err) {
     res.status(404).json({
-      status: 'success',
+      status: 'fail',
       message: err,
     });
   }
