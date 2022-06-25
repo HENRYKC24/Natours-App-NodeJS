@@ -10,7 +10,6 @@ const DB = process.env.MONGODB_REMOTE_SERVER.replace(
   process.env.MONGODB_PASSWORD
 );
 mongoose
-  // .connect(process.env.MONGODB_LOCAL_SERVER, {
   .connect(DB, {
     useNewUrlParser: true,
     useCreateIndex: true,
