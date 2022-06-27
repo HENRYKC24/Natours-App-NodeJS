@@ -4,6 +4,10 @@ const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
   return new AppError(message, 400);
 };
+const handleDuplicateFieldsDB = (err) => {
+  const message = `Duplicate field: "${err.keyValue.name}". Please, use a different value.`;
+  return new AppError(message, 400);
+};
 
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -44,6 +48,7 @@ module.exports = (err, req, res, next) => {
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
     if (error.kind === 'ObjectId') error = handleCastErrorDB(error);
+    if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     sendErrorProd(error, res);
   }
 };
