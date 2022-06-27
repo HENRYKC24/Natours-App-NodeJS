@@ -37,9 +37,8 @@ class APIFeatures {
     const { fields } = this.requestQueryObject;
 
     if (fields) {
-      this.mongoQueryObject = this.mongoQueryObject.select(
-        fields.split(',').join(' ')
-      );
+      const wantedFieldsFormat = fields.split(',').join(' ');
+      this.mongoQueryObject = this.mongoQueryObject.select(wantedFieldsFormat);
     } else {
       this.mongoQueryObject = this.mongoQueryObject.select('-__v');
     }
