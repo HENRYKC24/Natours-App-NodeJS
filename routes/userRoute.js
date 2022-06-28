@@ -7,12 +7,13 @@ const { getUsers, createUser, getUser, updateUser, deleteUser } =
 
 const authController = require('../controller/authController');
 
-const { signup } = authController;
+const { signup, login } = authController;
 
 // USERS ROUTES
 const router = express.Router();
 
 router.post('/signup', signup);
+router.post('/login', login);
 
 router.route('/').get(getUsers).post(createUser);
 
