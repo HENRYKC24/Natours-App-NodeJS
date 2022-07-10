@@ -12,7 +12,12 @@ const getJWTToken = (id) =>
 
 exports.signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm } = req.body;
-  const newUser = await User.create({ name, email, password, passwordConfirm });
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    passwordConfirm,
+  });
 
   const { _id } = newUser;
 
@@ -65,12 +70,20 @@ exports.protect = catchAsync(async (req, res, next) => {
   // 2) Verify tokens
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   // 3) Check if user exists
-  const user = await User.findById(decoded.id);
-  if (!user)
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser)
     return next(
       new AppError('The user possessing this token does no longer exist.', 401)
     );
 
   // 4) Check if user changed password after the token was issued
+  if (currentUser.passwordChangedAfter(decoded.iat)) {
+    return next(
+      new AppError('User recently changed password. Please, log in again.', 401)
+    );
+  }
+
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
   next();
 });
