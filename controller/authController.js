@@ -11,13 +11,8 @@ const getJWTToken = (id) =>
   });
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { name, email, password, passwordConfirm } = req.body;
-  const newUser = await User.create({
-    name,
-    email,
-    password,
-    passwordConfirm,
-  });
+  // const { name, email, password, passwordConfirm } = req.body;
+  const newUser = await User.create(req.body);
 
   const { _id } = newUser;
 
@@ -87,3 +82,16 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    const { role } = req.user;
+    if (!roles.includes(role)) {
+      return next(
+        new AppError('You do not have permission to perform this action.', 403)
+      );
+    }
+
+    next();
+  };
