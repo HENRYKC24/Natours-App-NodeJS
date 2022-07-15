@@ -27,8 +27,10 @@ router.patch('/reset-password/:token', resetPassword);
 
 router.patch('/update-password', protect, updatePassword);
 
+router.patch('/update-user', protect, updateUser);
+
 router.route('/').get(getUsers).post(createUser);
 
-router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+router.route('/:id').get(getUser).delete(deleteUser);
 
 module.exports = router;
