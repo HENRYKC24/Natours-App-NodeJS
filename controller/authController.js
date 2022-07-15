@@ -12,25 +12,23 @@ const getJWTToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+const sendResponseWithToken = (user, statusCode, res) => {
+  const token = getJWTToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   // const { name, email, password, passwordConfirm } = req.body;
   const newUser = await User.create(req.body);
 
-  const { _id } = newUser;
-
-  const token = getJWTToken(newUser._id);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: {
-      user: {
-        name: newUser.name,
-        email: newUser.email,
-        _id,
-      },
-    },
-  });
+  sendResponseWithToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -47,12 +45,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   // 3) If everything is okay, send toke to client
 
-  const token = getJWTToken(user._id);
-
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+  sendResponseWithToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -165,12 +158,27 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 3) Update changePasswordAt property for the user
+  // This step is done using pre save mongoose middleware
 
   // 4) Log the user in, send email
-  const token = getJWTToken(user._id);
+  sendResponseWithToken(user, 200, res);
+});
 
-  res.status(200).json({
-    status: 'success',
-    token,
-  });
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) Get user from collection (At this point, user is tacked to the req by protect middleware)
+  const user = await User.findById(req.user.id).select('+password');
+
+  // 2) Check if POSTed current password is correct
+  if (!(await user.checkPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong.', 401));
+  }
+
+  // 3) If so, update password
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  await user.save();
+  // User.findBIdAndUpdate will NOT work as intended!
+
+  // 4) Log user in, send JWT
+  sendResponseWithToken(user, 200, res);
 });
