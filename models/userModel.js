@@ -56,6 +56,14 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  // Remove a second from now to account for delay in updating the database sometimes
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 userSchema.methods.checkPassword = async function (
   providedPassword,
   savedPassword
