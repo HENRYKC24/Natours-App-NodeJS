@@ -41,7 +41,8 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {
     return next(
       new AppError(
-        'This is not the route for update password. Please, use /update-password'
+        'This is not the route for update password. Please, use /update-password',
+        400
       )
     );
   }
