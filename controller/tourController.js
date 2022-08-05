@@ -23,7 +23,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
-  const query = new APIFeatures(Tour.find().populate('guides'), req.query)
+  const query = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
     .limitFields()
@@ -41,7 +41,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getOneTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('guides');
+  const tour = await Tour.findById(req.params.id);
 
   if (!tour) {
     return next(new AppError('No tour with that ID found', 404));

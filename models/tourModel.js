@@ -142,6 +142,7 @@ tourSchema.pre('save', function (next) {
 
 // FIND MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
+  this.populate('guides');
   this.startTime = Date.now();
   this.find({ superSecret: { $ne: true } });
   next();
