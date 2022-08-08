@@ -10,6 +10,7 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/errorController');
 const tourRouter = require('./routes/tourRoute');
 const userRouter = require('./routes/userRoute');
+const reviewRouter = require('./routes/reviewRoute');
 
 // SET UP APP
 const app = express();
@@ -67,6 +68,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // HANDLE WRONG ENDPOINTS
 app.all('*', (req, res, next) => {
